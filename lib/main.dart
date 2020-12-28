@@ -1,71 +1,78 @@
 import 'package:flutter/material.dart';
 import 'package:share/share.dart';
+import 'package:testbed/famous_saying_factory.dart';
+import 'package:testbed/my_color.dart';
+
+import 'famous_saying.dart';
 
 void main() {
+  FlutterError.onError = (FlutterErrorDetails details) {
+    FlutterError.dumpErrorToConsole(details);
+  };
   runApp(FamousSayingApp());
 }
 
 class FamousSayingApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
-    return Container(
-        decoration: BoxDecoration(
-            gradient: new LinearGradient(
-                colors: [
-                  const Color(0xFF3366FF),
-                  const Color(0xFF00CCFF),
-                ],
-                begin: const FractionalOffset(0.0, 0.0),
-                end: const FractionalOffset(1.0, 0.0),
-                stops: [0.0, 1.0],
-                tileMode: TileMode.clamp)),
-        child: Directionality(
-            textDirection: TextDirection.ltr,
-            child: Center(
-                child: Column(mainAxisSize: MainAxisSize.min, children: [
-              Column(mainAxisSize: MainAxisSize.min, children: [
-                Text('유명해지려면 똥을 싸라',
-                    style: TextStyle(fontSize: 32, color: Colors.white)),
-                Text('by 개소리',
-                    style: TextStyle(fontSize: 20, color: Colors.white))
-              ]),
-              SizedBox(height: 50),
-              OutlineButton(
-                  color: Colors.white,
-                  shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(15)),
-                  borderSide: BorderSide(
-                      color: Colors.white, style: BorderStyle.solid, width: 1),
-                  child: Row(mainAxisSize: MainAxisSize.min, children: [
-                    Icon(Icons.share, color: Colors.white),
-                    Text("공유하기", style: TextStyle(fontSize: 20, color: Colors.white))
-                  ]),
-                  onPressed: () {
-                    Share.share("유명해지려면 똥을 싸라 by 개소리");
-                  })
-            ])))
-        /*child: Center(
-            child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: <Widget>[
-            Column(mainAxisSize: MainAxisSize.min, children: <Widget>[
-              Text('유명해지려면 똥을 싸라',
-                  textDirection: TextDirection.ltr,
-                  style: TextStyle(fontSize: 32, color: Colors.white)),
-              Text('by 개소리',
-                  textDirection: TextDirection.ltr,
-                  style: TextStyle(fontSize: 20, color: Colors.white))
-            ]),
-            Container(
-                child: Row(mainAxisSize: MainAxisSize.min, children: <Widget>[
-              Expanded(
-                  child: Text('by 개소리',
-                      textDirection: TextDirection.ltr,
-                      style: TextStyle(fontSize: 10, color: Colors.white)))
-            ]))
-          ],
-        ))*/
-        );
+    return MaterialApp(
+      title: 'Flutter Demo',
+      theme: ThemeData(
+        primarySwatch: primaryBlack,
+        scaffoldBackgroundColor: Color(0xffd7e89f)
+      ),
+      home: FamousSayingPage(),
+      debugShowCheckedModeBanner: false
+    );
+  }
+}
+
+class FamousSayingPage extends StatefulWidget {
+  @override
+  _FamousSayingPageState createState() => _FamousSayingPageState();
+}
+
+class _FamousSayingPageState extends State<FamousSayingPage> {
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+        body: FutureBuilder(
+            future: FamousSayingFactory.instance.create(context),
+            builder: (BuildContext context, AsyncSnapshot snapshot) {
+              if (snapshot.hasData) {
+                FamousSaying fs = snapshot.data;
+                print(fs.phrase);
+                return Center(
+                    child: Column(mainAxisSize: MainAxisSize.min, children: [
+                  Text("오늘의 명언",
+                      style: TextStyle(
+                          fontSize: 50,
+                          fontWeight: FontWeight.bold)),
+                  SizedBox(height: 50),
+                  fs,
+                  SizedBox(height: 50),
+                  OutlineButton(
+                      color: Colors.black,
+                      shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(15)),
+                      borderSide: BorderSide(
+                          color: Colors.black,
+                          style: BorderStyle.solid,
+                          width: 1),
+                      child: Row(mainAxisSize: MainAxisSize.min, children: [
+                        Icon(Icons.share, color: Colors.black),
+                        Text("공유하기",
+                            style: TextStyle(fontSize: 16, color: Colors.black))
+                      ]),
+                      onPressed: () {
+                        Share.share(fs.getShareString());
+                      }),
+                  SizedBox(height: 50)
+                ]));
+              } else {
+                return Container();
+              }
+            }));
   }
 }
 
