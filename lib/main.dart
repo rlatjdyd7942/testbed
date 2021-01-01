@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:share/share.dart';
 import 'package:testbed/famous_saying_factory.dart';
 import 'package:testbed/my_color.dart';
+import 'package:admob_flutter/admob_flutter.dart';
 
 import 'famous_saying.dart';
 
@@ -9,6 +10,8 @@ void main() {
   FlutterError.onError = (FlutterErrorDetails details) {
     FlutterError.dumpErrorToConsole(details);
   };
+  WidgetsFlutterBinding.ensureInitialized();
+  Admob.initialize();
   runApp(FamousSayingApp());
 }
 
@@ -16,14 +19,12 @@ class FamousSayingApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      title: 'Flutter Demo',
-      theme: ThemeData(
-        primarySwatch: primaryBlack,
-        scaffoldBackgroundColor: Color(0xffd7e89f)
-      ),
-      home: FamousSayingPage(),
-      debugShowCheckedModeBanner: false
-    );
+        title: 'Flutter Demo',
+        theme: ThemeData(
+            primarySwatch: primaryBlack,
+            scaffoldBackgroundColor: Color(0xffd7e89f)),
+        home: FamousSayingPage(),
+        debugShowCheckedModeBanner: false);
   }
 }
 
@@ -33,6 +34,67 @@ class FamousSayingPage extends StatefulWidget {
 }
 
 class _FamousSayingPageState extends State<FamousSayingPage> {
+  GlobalKey<ScaffoldState> scaffoldState = GlobalKey();
+  AdmobBannerSize bannerSize;
+
+  @override
+  void initState() {
+    super.initState();
+    bannerSize = AdmobBannerSize.BANNER;
+  }
+
+  void showSnackBar(String content) {
+    scaffoldState.currentState.showSnackBar(
+      SnackBar(
+        content: Text(content),
+        duration: Duration(milliseconds: 1500),
+      ),
+    );
+  }
+
+  void handleEvent(
+      AdmobAdEvent event, Map<String, dynamic> args, String adType) {
+    switch (event) {
+      case AdmobAdEvent.loaded:
+        showSnackBar('New Admob $adType Ad loaded!');
+        break;
+      case AdmobAdEvent.opened:
+        showSnackBar('Admob $adType Ad opened!');
+        break;
+      case AdmobAdEvent.closed:
+        showSnackBar('Admob $adType Ad closed!');
+        break;
+      case AdmobAdEvent.failedToLoad:
+        showSnackBar('Admob $adType failed to load. :(');
+        break;
+      case AdmobAdEvent.rewarded:
+        showDialog(
+          context: scaffoldState.currentContext,
+          builder: (BuildContext context) {
+            return WillPopScope(
+              child: AlertDialog(
+                content: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: <Widget>[
+                    Text('Reward callback fired. Thanks Andrew!'),
+                    Text('Type: ${args['type']}'),
+                    Text('Amount: ${args['amount']}'),
+                  ],
+                ),
+              ),
+              onWillPop: () async {
+                scaffoldState.currentState.hideCurrentSnackBar();
+                return true;
+              },
+            );
+          },
+        );
+        break;
+      default:
+    }
+  }
+
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -45,9 +107,8 @@ class _FamousSayingPageState extends State<FamousSayingPage> {
                 return Center(
                     child: Column(mainAxisSize: MainAxisSize.min, children: [
                   Text("오늘의 명언",
-                      style: TextStyle(
-                          fontSize: 50,
-                          fontWeight: FontWeight.bold)),
+                      style:
+                          TextStyle(fontSize: 50, fontWeight: FontWeight.bold)),
                   SizedBox(height: 50),
                   fs,
                   SizedBox(height: 50),
@@ -67,7 +128,22 @@ class _FamousSayingPageState extends State<FamousSayingPage> {
                       onPressed: () {
                         Share.share(fs.getShareString());
                       }),
-                  SizedBox(height: 50)
+                  Expanded(child: SizedBox()),
+                  AdmobBanner(
+                    adUnitId: 'ca-app-pub-3940256099942544/6300978111',
+                    adSize: bannerSize,
+                    listener: (AdmobAdEvent event,
+                        Map<String, dynamic> args) {
+                      handleEvent(event, args, 'Banner');
+                    },
+                    onBannerCreated:
+                        (AdmobBannerController controller) {
+                      // Dispose is called automatically for you when Flutter removes the banner from the widget tree.
+                      // Normally you don't need to worry about disposing this yourself, it's handled.
+                      // If you need direct access to dispose, this is your guy!
+                      // controller.dispose();
+                    },
+                  ),
                 ]));
               } else {
                 return Container();

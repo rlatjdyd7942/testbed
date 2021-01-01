@@ -1,12 +1,12 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     package="com.sykfactory.famoussaying">
-    <user-permission android:name="android.permission.INTERNET"/>
-    <user-permission android:name="android.permission.VIBRATE"/>
-    <user-permission android:name="android.permission.RECEIVE_BOOT_COMPLETE"/>
-    <uses-permission android:name="android.permission.WAKE_LOCK" />
+    <uses-permission android:name="android.permission.INTERNET"/>
     <application
         android:label="today's saying"
         android:icon="@mipmap/launcher_icon">
+        <meta-data
+          android:name="com.google.android.gms.ads.APPLICATION_ID"
+          android:value="ca-app-pub-9114068420256607~7162346555"/>
         <receiver android:name="com.dexterous.flutterlocalnotifications.ScheduledNotificationBootReceiver">
           <intent-filter>
               <action android:name="android.intent.action.BOOT_COMPLETED"></action>
