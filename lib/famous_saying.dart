@@ -15,7 +15,7 @@ class FamousSaying extends StatelessWidget {
     // ]);
     return Container(
       decoration: BoxDecoration(
-      color: Colors.white,
+      color: Colors.brown[600],
       borderRadius: BorderRadius.all(Radius.circular(20)),
       boxShadow: [
         BoxShadow(
@@ -28,9 +28,9 @@ class FamousSaying extends StatelessWidget {
       margin: EdgeInsets.all(20),
       padding: EdgeInsets.all(30),
       child: Column(mainAxisSize: MainAxisSize.min, children: [
-        Text(phrase, style: TextStyle(fontSize: 23)),
+        Text(phrase, style: TextStyle(fontSize: 23, color: Colors.white)),
         SizedBox(height: 20),
-        Text(speaker, style: TextStyle(fontSize: 18))
+        Text(speaker, style: TextStyle(fontSize: 18, color: Colors.white))
       ])
     );
   }
